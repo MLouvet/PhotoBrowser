@@ -57,12 +57,21 @@ public class PhotoComponent extends JComponent {
 
         this.addMouseListener(ui);
         this.addMouseMotionListener(ui);
+
     }
 
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         ui.paint(g, this);
+    }
+
+    public void addCharacter(Character c) {
+        System.out.println("KEY TYPED :" + c);
+        if (ui.addCharacter(c)) {
+            repaint();
+            revalidate();
+        }
     }
 
     public void loadImage(String path) {

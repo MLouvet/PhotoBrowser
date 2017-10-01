@@ -3,15 +3,14 @@ package photoComponent.model;
 import java.awt.*;
 
 public class TypedText {
-    private String text;
-    private Font font;
-    private Point position; //From top-left corner of the photo
-    private float size;
-    private Color color;
-    private int style;
+    public String text;
+    public Font font;
+    public Point position; //From top-left corner of the photo
+    public Color color;
 
-    public TypedText(String text) {
+    public TypedText(String text, Point p) {
         this.text = text;
-        font = new Font("Times New Roman", Font.PLAIN, 8);
+        position = p;
+        font = new Font("Times New Roman", Font.PLAIN, 24);
     }
 }

@@ -4,9 +4,7 @@ import photoComponent.view.PhotoUI;
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
 import java.awt.*;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
+import java.awt.event.*;
 
 public class MainFrame extends JFrame {
     private ButtonGroup buttonGroup;
@@ -95,6 +93,7 @@ public class MainFrame extends JFrame {
         pane.add(jPanelMain, BorderLayout.CENTER);
         pane.add(jLabelStatusBar, BorderLayout.SOUTH);
         setMinimumSize(new Dimension(500, 500));
+        setFocusable(true);
         this.pack();
         //</editor-fold>
 
@@ -170,6 +169,23 @@ public class MainFrame extends JFrame {
         jToggleButton1.addActionListener(actionUnimplementedListerner);
         jToggleButton2.addActionListener(actionUnimplementedListerner);
         jToggleButton3.addActionListener(actionUnimplementedListerner);
+
+        this.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                myPhotoComponent.addCharacter(e.getKeyChar());
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+
+            }
+        });
         //</editor-fold>
 
 

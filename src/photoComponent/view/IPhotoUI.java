@@ -17,4 +17,6 @@ public interface IPhotoUI {
     void removePropertyChangeListener(PropertyChangeListener l);
     void loadImage(Path p);
     Image getImage();
+
+    boolean addCharacter(Character c);
 }

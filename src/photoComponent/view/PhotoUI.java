@@ -1,11 +1,13 @@
 package photoComponent.view;
 
 import photoComponent.model.IAnnotation;
+import photoComponent.model.TypedText;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -14,6 +16,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+
+import static java.awt.event.KeyEvent.CHAR_UNDEFINED;
+
+enum RotationStatus {
+    BACK, BACK_TO_FRONT, FRONT, FRONT_TO_BACK
+}
 
 public class PhotoUI extends AbstractPhotoUI {
     private IAnnotation model;
@@ -24,6 +32,8 @@ public class PhotoUI extends AbstractPhotoUI {
     private float viewablePercent;
     private boolean isFlipped;
     private boolean canDraw;
+    private boolean canType;
+    private TypedText currentText;
 
     public PhotoUI(IAnnotation model) {
         this.model = model;
@@ -32,14 +42,16 @@ public class PhotoUI extends AbstractPhotoUI {
         dimension = new Dimension();
         rotationStatus = RotationStatus.FRONT;
         viewablePercent = 1; //0 = sideview
-        canDraw = false;
+        canDraw = canType = false;
     }
 
     //Events here
     //<editor-fold desc="Events">
     @Override
     public void mouseClicked(MouseEvent e) {
-        if (e.getClickCount() == 2 && !e.isConsumed() && image != null) {
+        if (image == null)
+            return;
+        if (e.getClickCount() == 2 && !e.isConsumed()) {
             if (rotationStatus == RotationStatus.FRONT || rotationStatus == RotationStatus.BACK_TO_FRONT)
                 rotationStatus = RotationStatus.FRONT_TO_BACK;
             else if (rotationStatus == RotationStatus.BACK || rotationStatus == RotationStatus.FRONT_TO_BACK)
@@ -47,8 +59,11 @@ public class PhotoUI extends AbstractPhotoUI {
 
             flip();
             e.consume();
-        } else if (e.getClickCount() == 1 && !e.isConsumed()){
+        } else if (e.getClickCount() == 1 && !e.isConsumed() && isFlipped) {
             System.out.println("Click");
+            canType = true;
+            currentText = new TypedText("", e.getPoint());
+            model.addTypedText(currentText);
         }
     }
 
@@ -150,6 +165,51 @@ public class PhotoUI extends AbstractPhotoUI {
         return image;
     }
 
+    @Override
+    public boolean addCharacter(Character c) {
+        if (!canType || c == CHAR_UNDEFINED)
+            return false;
+
+        //Checking if a character can be added
+        StringBuilder sb = new StringBuilder(currentText.text + c);
+        int breakIndex = sb.lastIndexOf(System.lineSeparator());
+
+        String beforeLast;
+        if (breakIndex != -1) {
+            beforeLast = sb.substring(0, breakIndex);
+            sb = new StringBuilder(sb.substring(breakIndex + 1) + c);
+        } else {
+            beforeLast = "";
+        }
+
+        //TODO : COunt lines
+
+        Graphics g = image.getGraphics(); //Dirty way of getting graphics, but efficient
+        Rectangle2D rect = g.getFontMetrics(currentText.font).getStringBounds(sb.toString(), g);
+
+        if (currentText.position.x + (int) rect.getWidth() > dimension.width) {
+            System.out.println("TOO LARGE");
+            System.out.println("Pos : " + currentText.position.x + " + " + rect.getWidth());
+            if (sb.length() == 1) //already at limit
+                return false;
+            else {
+                int lastSpaceIndex = sb.lastIndexOf(" ");
+                if (lastSpaceIndex != -1) {
+                    sb.replace(lastSpaceIndex, lastSpaceIndex + 1, System.lineSeparator());
+                    currentText.text = beforeLast + sb.toString();
+                } else
+                    currentText.text = currentText.text + System.lineSeparator() + c;
+            }
+        }
+        else
+            currentText.text += c;
+
+        System.out.println("Character ADDED!");
+
+        System.out.println(currentText.text);
+        return true;
+    }
+
     private void setDimension(int width, int height) {
         Dimension oldDim = new Dimension(dimension);
         dimension.setSize(width, height);
@@ -196,7 +256,15 @@ public class PhotoUI extends AbstractPhotoUI {
                 //TODO : draw annotations here
                 g.setColor(Color.BLACK);
                 for (Point p : model.getPoints()) {
-                    g.drawOval(p.x, p.y, 4, 4);
+                    g.fillOval(p.x, p.y, 4, 4);
+                }
+                for (TypedText t : model.getTypedTexts()) {
+                    g.setColor(t.color);
+                    g.setFont(t.font);
+                    int y = t.position.y;
+                    for (String s : t.text.split(System.lineSeparator())) {
+                        g.drawString(s, t.position.x, y += g.getFontMetrics().getHeight());
+                    }
                 }
             }
         }
@@ -210,11 +278,14 @@ public class PhotoUI extends AbstractPhotoUI {
 
     @Override
     public void mouseMoved(MouseEvent e) {
-
-    }
-
-    private enum RotationStatus {
-        BACK, BACK_TO_FRONT, FRONT, FRONT_TO_BACK
+        if (canType) {
+            System.out.println("END OF TYPING");
+            canType = false;
+            if (currentText.text.isEmpty()) {
+                model.removeTypedText(currentText);
+            }
+            currentText = null;
+        }
     }
     //</editor-fold>
 
