@@ -1,15 +1,18 @@
 package photoComponent;
 
-import photoComponent.model.IPhotoComponentModel;
-import photoComponent.view.IPhotoComponentUI;
+import photoComponent.model.Annotation;
+import photoComponent.model.IAnnotation;
+import photoComponent.view.AbstractPhotoUI;
+import photoComponent.view.PhotoUI;
 
-import java.nio.file.Path;
+import javax.swing.*;
+import java.awt.*;
+import java.nio.file.Paths;
 
 /**
  * Created by Mathieu on 20/09/2017.
  */
-public class PhotoComponent {
-
+public class PhotoComponent extends JComponent {
     /*
      * Documentation :
      * https://community.oracle.com/docs/DOC-983603
@@ -23,14 +26,46 @@ public class PhotoComponent {
 
     //
     //Shows image, setting a background and resizing if necessary
-//    public void displayImage(Path p);
-//
-//    public boolean isFlipped();
-//    public void flip();
-//    public void annotate();
-//    public void editAnnotation
-//    public void draw();
+    //    public void displayImage(Path p);
+    //
+    //    public boolean isFlipped();
+    //    public void flip();
+    //    public void annotate();
+    //    public void editAnnotation
+    //    public void draw();
 
-    IPhotoComponentModel model;
-    IPhotoComponentUI ui;
+    private IAnnotation model;
+    private AbstractPhotoUI ui;
+
+    public PhotoComponent() {
+        model = new Annotation();
+        ui = new PhotoUI(model);
+
+        //        PhotoComponent photoComponent = this;
+        model.addChangeListener(e -> {
+            revalidate();
+            repaint();
+        });
+
+        ui.addPropertyChangeListener(evt -> {
+            System.out.println("REPAINT & VALIDATE");
+            if ("dimension".equals(evt.getPropertyName()))
+                setPreferredSize(ui.getDimension());
+            repaint();
+            revalidate();
+        });
+
+        this.addMouseListener(ui);
+        this.addMouseMotionListener(ui);
+    }
+
+    @Override
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        ui.paint(g, this);
+    }
+
+    public void loadImage(String path) {
+        ui.loadImage(Paths.get(path));
+    }
 }

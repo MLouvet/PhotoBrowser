@@ -1,4 +1,5 @@
-import photoComponent.view.PhotoComponentUI;
+import photoComponent.PhotoComponent;
+import photoComponent.view.PhotoUI;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
@@ -20,10 +21,12 @@ public class MainFrame extends JFrame {
     private JRadioButtonMenuItem jRBMIPhotoViewer;
     private JRadioButtonMenuItem jRBMIBrowser;
     private JRadioButtonMenuItem jRBMISplitMode;
+    private JScrollPane jScrollPane;
     private JToggleButton jToggleButton1;
     private JToggleButton jToggleButton2;
     private JToggleButton jToggleButton3;
     private JToolBar jToolBar;
+    private PhotoComponent myPhotoComponent;
 
     public MainFrame() {
 
@@ -47,12 +50,15 @@ public class MainFrame extends JFrame {
         jRBMIBrowser = new JRadioButtonMenuItem("Browser");
         jRBMISplitMode = new JRadioButtonMenuItem("Split Mode");
 
+        jScrollPane = new JScrollPane();
 
         jToggleButton1 = new JToggleButton("Family");
         jToggleButton2 = new JToggleButton("Vacation");
         jToggleButton3 = new JToggleButton("School");
 
         jToolBar = new JToolBar();
+
+        myPhotoComponent = new PhotoComponent();
         //</editor-fold>
 
         //<editor-fold desc="Organizing the frame">
@@ -69,6 +75,10 @@ public class MainFrame extends JFrame {
 
         jRBMIPhotoViewer.setSelected(true);
 
+        jPanelMain.setLayout(new BorderLayout());
+        jPanelMain.add(jScrollPane, BorderLayout.CENTER);
+        jScrollPane.setViewportView(myPhotoComponent);
+
         jMenuBar.add(jMenuFile);
         jMenuBar.add(jMenuView);
 
@@ -82,9 +92,10 @@ public class MainFrame extends JFrame {
 
         pane.setLayout(new BorderLayout());
         pane.add(jToolBar, BorderLayout.NORTH);
-        pane.add(jPanelMain);
+        pane.add(jPanelMain, BorderLayout.CENTER);
         pane.add(jLabelStatusBar, BorderLayout.SOUTH);
         setMinimumSize(new Dimension(500, 500));
+        this.pack();
         //</editor-fold>
 
         //<editor-fold desc="Setting up events">
@@ -92,9 +103,11 @@ public class MainFrame extends JFrame {
 
         jMenuItemImport.addActionListener(event -> {
             JFileChooser jFileChooser = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
-            jFileChooser.showOpenDialog(null);
-        });
 
+            if (jFileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+                myPhotoComponent.loadImage(jFileChooser.getSelectedFile().getAbsolutePath());
+            }
+        });
 
         jMenuItemQuit.addActionListener(event -> {
             frame.setVisible(false);
@@ -139,13 +152,13 @@ public class MainFrame extends JFrame {
             Object o = e.getSource();
             String msg = "Unexpected event raised";
 
-            if(o.equals(jMenuItemDelete)) msg = "Not implemented: Deletion";
+            if (o.equals(jMenuItemDelete)) msg = "Not implemented: Deletion";
             else if (o.equals(jRBMIBrowser)) msg = "Not implemented: Browser Mode";
-            else if(o.equals(jRBMIPhotoViewer)) msg = "Not implemented: Photo viewer Mode";
-            else if(o.equals(jRBMISplitMode)) msg = "Not implemented: Split Mode";
-            else if(o.equals(jToggleButton1)) msg = "Not implemented: Family Mode";
-            else if(o.equals(jToggleButton2)) msg = "Not implemented: Vacation Mode";
-            else if(o.equals(jToggleButton3))msg = "Not implemented: School Mode";
+            else if (o.equals(jRBMIPhotoViewer)) msg = "Not implemented: Photo viewer Mode";
+            else if (o.equals(jRBMISplitMode)) msg = "Not implemented: Split Mode";
+            else if (o.equals(jToggleButton1)) msg = "Not implemented: Family Mode";
+            else if (o.equals(jToggleButton2)) msg = "Not implemented: Vacation Mode";
+            else if (o.equals(jToggleButton3)) msg = "Not implemented: School Mode";
 
             jLabelStatusBar.setText(msg);
         };
@@ -162,8 +175,8 @@ public class MainFrame extends JFrame {
 
     }
 
-    public static void main(String args[])   {
-        UIManager.put(PhotoComponentUI.UI_CLASS_ID, "PhotoBrowserUI");
+    public static void main(String args[]) {
+        UIManager.put(PhotoUI.UI_CLASS_ID, "PhotoBrowserUI");
         //Uses system look&feel instead of the base one.
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
