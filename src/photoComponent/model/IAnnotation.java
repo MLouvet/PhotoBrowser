@@ -23,5 +23,5 @@ public interface IAnnotation {
     void removeChangeListener(ChangeListener l);
     void removeShape(Shape s);
 
-
+    void addTypedTextCharacter(TypedText t, Character c);
 }

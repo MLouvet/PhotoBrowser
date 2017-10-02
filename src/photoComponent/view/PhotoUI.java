@@ -7,7 +7,6 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -167,49 +166,45 @@ public class PhotoUI extends AbstractPhotoUI {
 
     @Override
     public boolean addCharacter(Character c) {
-        if (!canType || c == CHAR_UNDEFINED)
+        if (!canType || c == CHAR_UNDEFINED || currentText == null)
             return false;
 
-        //Checking if a character can be added
-        StringBuilder sb = new StringBuilder(currentText.text + c);
-        int breakIndex = sb.lastIndexOf(System.lineSeparator());
-
-        String beforeLast;
-        if (breakIndex != -1) {
-            beforeLast = sb.substring(0, breakIndex);
-            sb = new StringBuilder(sb.substring(breakIndex + 1));
+        if (shouldAddCharacter(currentText.text, c)) {
+            model.addTypedTextCharacter(currentText, c);
+            return true;
         } else {
-            beforeLast = "";
+            return false;
         }
+    }
 
-        //TODO : COunt lines
+    /**
+     * Checking if a character can be added and not go out of the gui
+     *
+     * @param text: text which will be displayed for currentText
+     * @param c: character to be added to X
+     * @return true if character can be added and displayed
+     */
+    private boolean shouldAddCharacter(String text, Character c) {
+        int maxWidth = dimension.width - currentText.position.x;
+        List<String> lines = new ArrayList<>();
+        StringBuilder sb = new StringBuilder(text + c);
+        FontMetrics metrics = image.getGraphics().getFontMetrics(currentText.font);
 
-        Graphics g = image.getGraphics(); //Dirty way of getting graphics, but efficient
-        Rectangle2D rect = g.getFontMetrics(currentText.font).getStringBounds(sb.toString(), g);
-
-        if (currentText.position.x + (int) rect.getWidth() > dimension.width) {
-            System.out.println("TOO LARGE");
-            System.out.println("Pos : " + currentText.position.x + " + " + rect.getWidth());
-            if (sb.length() == 1) //already at limit
-                return false;
-            else {  //a linebreak will be added if possible
-                int numberOfLinesWithNewBreak = currentText.text.split(System.lineSeparator()).length + 1;
-                if (dimension.height < currentText.position.y + rect.getHeight() * numberOfLinesWithNewBreak)
-                    return false;
-                int lastSpaceIndex = sb.lastIndexOf(" ");
-                if (lastSpaceIndex != -1) {
-                    sb.replace(lastSpaceIndex, lastSpaceIndex + 1, System.lineSeparator());
-                    currentText.text = beforeLast + sb.toString();
-                } else
-                    currentText.text = currentText.text + System.lineSeparator() + c;
+        for (int i = 0; i < sb.length(); i++) {
+            int size = metrics.stringWidth(sb.substring(0, i + 1));
+            if (size > maxWidth) {
+                lines.add(sb.substring(0, i));
+                sb.delete(0, i);
+                i = 0;
             }
-        } else
-            currentText.text += c;
+        }
+        if (sb.length() != 0)
+            lines.add(sb.toString());
+        if (lines.isEmpty()) //Case where a character can't be added at all: border of the frame
+            return false;
 
-        System.out.println("Character ADDED!");
-
-        System.out.println(currentText.text);
-        return true;
+        int height = metrics.getHeight() * (lines.size() - 1); //Drawn from bottom to top
+        return currentText.position.y + height <= dimension.height;
     }
 
     private void setDimension(int width, int height) {
@@ -263,13 +258,28 @@ public class PhotoUI extends AbstractPhotoUI {
                 for (TypedText t : model.getTypedTexts()) {
                     g.setColor(t.color);
                     g.setFont(t.font);
-                    int y = t.position.y;
-                    for (String s : t.text.split(System.lineSeparator())) {
-                        g.drawString(s, t.position.x, y += g.getFontMetrics().getHeight());
-                    }
+                    drawStringWithBreaks(t.text, t.font, g, t.position.x, t.position.y);
                 }
             }
         }
+    }
+
+    private void drawStringWithBreaks(String s, Font f, Graphics g, int x, int y) {
+        int maxWidth = dimension.width - x;
+        StringBuilder sb = new StringBuilder(s);
+        FontMetrics metrics = image.getGraphics().getFontMetrics(f);
+
+        for (int i = 0; i < sb.length(); i++) {
+            int size = metrics.stringWidth(sb.substring(0, i + 1));
+            if (size > maxWidth) {
+                g.drawString(sb.substring(0, i), x, y);
+                y += metrics.getHeight();
+                sb.delete(0, i);
+                i = 0;
+            }
+        }
+        if (sb.length() != 0)
+            g.drawString(sb.toString(), x, y);
     }
 
     @Override

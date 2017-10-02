@@ -92,6 +92,15 @@ public class Annotation extends JComponent implements IAnnotation {
         }
     }
 
+    @Override
+    public void addTypedTextCharacter(TypedText t, Character c) {
+        if (typedTexts.indexOf(t) == -1)
+            return;
+        t.text += c;
+        notifyPropertyChanged();
+        System.out.println("KEY ADDED");
+    }
+
     private void notifyPropertyChanged() {
         for (ChangeListener l : listeners) {
             l.stateChanged(new ChangeEvent(this));

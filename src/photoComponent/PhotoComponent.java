@@ -67,7 +67,7 @@ public class PhotoComponent extends JComponent {
     }
 
     public void addCharacter(Character c) {
-        System.out.println("KEY TYPED :" + c);
+        System.out.println("KEY TYPED :3" + c);
         if (ui.addCharacter(c)) {
             repaint();
             revalidate();
