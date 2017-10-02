@@ -177,7 +177,7 @@ public class PhotoUI extends AbstractPhotoUI {
         String beforeLast;
         if (breakIndex != -1) {
             beforeLast = sb.substring(0, breakIndex);
-            sb = new StringBuilder(sb.substring(breakIndex + 1) + c);
+            sb = new StringBuilder(sb.substring(breakIndex + 1));
         } else {
             beforeLast = "";
         }
@@ -192,7 +192,10 @@ public class PhotoUI extends AbstractPhotoUI {
             System.out.println("Pos : " + currentText.position.x + " + " + rect.getWidth());
             if (sb.length() == 1) //already at limit
                 return false;
-            else {
+            else {  //a linebreak will be added if possible
+                int numberOfLinesWithNewBreak = currentText.text.split(System.lineSeparator()).length + 1;
+                if (dimension.height < currentText.position.y + rect.getHeight() * numberOfLinesWithNewBreak)
+                    return false;
                 int lastSpaceIndex = sb.lastIndexOf(" ");
                 if (lastSpaceIndex != -1) {
                     sb.replace(lastSpaceIndex, lastSpaceIndex + 1, System.lineSeparator());
@@ -200,8 +203,7 @@ public class PhotoUI extends AbstractPhotoUI {
                 } else
                     currentText.text = currentText.text + System.lineSeparator() + c;
             }
-        }
-        else
+        } else
             currentText.text += c;
 
         System.out.println("Character ADDED!");
