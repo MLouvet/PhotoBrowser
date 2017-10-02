@@ -33,6 +33,7 @@ public class PhotoUI extends AbstractPhotoUI {
     private boolean canDraw;
     private boolean canType;
     private TypedText currentText;
+    private String errorMsg;
 
     public PhotoUI(IAnnotation model) {
         this.model = model;
@@ -42,6 +43,7 @@ public class PhotoUI extends AbstractPhotoUI {
         rotationStatus = RotationStatus.FRONT;
         viewablePercent = 1; //0 = sideview
         canDraw = canType = false;
+        errorMsg = "";
     }
 
     //Events here
@@ -173,6 +175,7 @@ public class PhotoUI extends AbstractPhotoUI {
             model.addTypedTextCharacter(currentText, c);
             return true;
         } else {
+            setErrorMessage("Not enough space!");
             return false;
         }
     }
@@ -298,6 +301,14 @@ public class PhotoUI extends AbstractPhotoUI {
             }
             currentText = null;
         }
+    }
+
+    @Override
+    void setErrorMessage(String str) {
+        for (PropertyChangeListener listener : listeners) {
+            listener.propertyChange(new PropertyChangeEvent(this, "errorMsg", errorMsg, str));
+        }
+        errorMsg = str;
     }
     //</editor-fold>
 

@@ -170,7 +170,7 @@ public class MainFrame extends JFrame {
         jToggleButton2.addActionListener(actionUnimplementedListerner);
         jToggleButton3.addActionListener(actionUnimplementedListerner);
 
-        this.addKeyListener(new KeyListener() {
+        addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {
                 myPhotoComponent.addCharacter(e.getKeyChar());
@@ -184,6 +184,13 @@ public class MainFrame extends JFrame {
             @Override
             public void keyReleased(KeyEvent e) {
 
+            }
+        });
+
+        //Error displaying
+        myPhotoComponent.addPropertyChangeListener(evt -> {
+            if (evt.getPropertyName().equals("errorMsg")) {
+                jLabelStatusBar.setText(evt.getNewValue().toString());
             }
         });
         //</editor-fold>

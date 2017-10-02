@@ -7,6 +7,7 @@ import photoComponent.view.PhotoUI;
 
 import javax.swing.*;
 import java.awt.*;
+import java.beans.PropertyChangeListener;
 import java.nio.file.Paths;
 
 /**
@@ -48,11 +49,16 @@ public class PhotoComponent extends JComponent {
         });
 
         ui.addPropertyChangeListener(evt -> {
-            System.out.println("REPAINT & VALIDATE");
             if ("dimension".equals(evt.getPropertyName()))
                 setPreferredSize(ui.getDimension());
             repaint();
             revalidate();
+        });
+
+        ui.addPropertyChangeListener(e -> {
+            for (PropertyChangeListener l : getPropertyChangeListeners()) {
+                l.propertyChange(e);
+            }
         });
 
         this.addMouseListener(ui);
