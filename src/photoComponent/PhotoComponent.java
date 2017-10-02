@@ -2,11 +2,16 @@ package photoComponent;
 
 import photoComponent.model.Annotation;
 import photoComponent.model.IAnnotation;
+import photoComponent.model.PenStatus;
 import photoComponent.view.AbstractPhotoUI;
 import photoComponent.view.PhotoUI;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.beans.PropertyChangeListener;
 import java.nio.file.Paths;
 
@@ -24,16 +29,6 @@ public class PhotoComponent extends JComponent {
      * https://docs.oracle.com/javase/7/docs/api/java/awt/Graphics2D.html
      * http://www.java2s.com/Code/JavaAPI/java.awt/FontderiveFontintstylefloatsize.htm
      */
-
-    //
-    //Shows image, setting a background and resizing if necessary
-    //    public void displayImage(Path p);
-    //
-    //    public boolean isFlipped();
-    //    public void flip();
-    //    public void annotate();
-    //    public void editAnnotation
-    //    public void draw();
 
     private IAnnotation model;
     private AbstractPhotoUI ui;
@@ -63,7 +58,6 @@ public class PhotoComponent extends JComponent {
 
         this.addMouseListener(ui);
         this.addMouseMotionListener(ui);
-
     }
 
     @Override
@@ -73,7 +67,6 @@ public class PhotoComponent extends JComponent {
     }
 
     public void addCharacter(Character c) {
-        System.out.println("KEY TYPED :3" + c);
         if (ui.addCharacter(c)) {
             repaint();
             revalidate();
@@ -82,5 +75,10 @@ public class PhotoComponent extends JComponent {
 
     public void loadImage(String path) {
         ui.loadImage(Paths.get(path));
+        model.clean();
+    }
+
+    public void setPenStatus(PenStatus penStatus) {
+        ui.setPenStatus(penStatus);
     }
 }

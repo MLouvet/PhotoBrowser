@@ -1,13 +1,17 @@
+import photoComponent.PenSelector;
 import photoComponent.PhotoComponent;
 import photoComponent.view.PhotoUI;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileSystemView;
 import java.awt.*;
 import java.awt.event.*;
 
 public class MainFrame extends JFrame {
     private ButtonGroup buttonGroup;
+    private JComboBox jComboBox;
     private JLabel jLabelStatusBar;
     private JMenu jMenuFile;
     private JMenu jMenuView;
@@ -24,25 +28,27 @@ public class MainFrame extends JFrame {
     private JToggleButton jToggleButton2;
     private JToggleButton jToggleButton3;
     private JToolBar jToolBar;
+    private PenSelector penSelector;
     private PhotoComponent myPhotoComponent;
-
     public MainFrame() {
 
         //<editor-fold desc="Objects initialization">
         super("PhotoBrowser");
         buttonGroup = new ButtonGroup();
         jLabelStatusBar = new JLabel("JLABEL");
+        jComboBox = new JComboBox();
 
         jMenuFile = new JMenu("File");
         jMenuView = new JMenu("View");
 
         jMenuBar = new JMenuBar();
-
+        
         jMenuItemDelete = new JMenuItem("Delete");
         jMenuItemImport = new JMenuItem("Import");
         jMenuItemQuit = new JMenuItem("Quit");
 
         jPanelMain = new JPanel();
+        penSelector = new PenSelector();
 
         jRBMIPhotoViewer = new JRadioButtonMenuItem("Photo Viewer");
         jRBMIBrowser = new JRadioButtonMenuItem("Browser");
@@ -74,6 +80,7 @@ public class MainFrame extends JFrame {
         jRBMIPhotoViewer.setSelected(true);
 
         jPanelMain.setLayout(new BorderLayout());
+        jPanelMain.add(penSelector, BorderLayout.NORTH);
         jPanelMain.add(jScrollPane, BorderLayout.CENTER);
         jScrollPane.setViewportView(myPhotoComponent);
 
@@ -193,9 +200,9 @@ public class MainFrame extends JFrame {
                 jLabelStatusBar.setText(evt.getNewValue().toString());
             }
         });
+
+        penSelector.addChangeListener(e -> myPhotoComponent.setPenStatus(penSelector.getPenStatus()));
         //</editor-fold>
-
-
     }
 
     public static void main(String args[]) {

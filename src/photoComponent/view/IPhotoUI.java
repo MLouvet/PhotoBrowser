@@ -1,6 +1,7 @@
 package photoComponent.view;
 
 import photoComponent.model.IAnnotation;
+import photoComponent.model.PenStatus;
 
 import java.awt.*;
 import java.beans.PropertyChangeListener;
@@ -17,6 +18,8 @@ public interface IPhotoUI {
     void removePropertyChangeListener(PropertyChangeListener l);
     void loadImage(Path p);
     Image getImage();
+
+    void setPenStatus(PenStatus p);
 
     boolean addCharacter(Character c);
 }

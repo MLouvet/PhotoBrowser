@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class Annotation extends JComponent implements IAnnotation {
-    private List<Point> points = new ArrayList<>();
+    private List<FancyPoint> points = new ArrayList<>();
     private List<Shape> shapes = new ArrayList<>();
     private List<TypedText> typedTexts = new ArrayList<>();
     private List<ChangeListener> listeners = new ArrayList<>();
@@ -20,7 +20,7 @@ public class Annotation extends JComponent implements IAnnotation {
     }
 
     @Override
-    public synchronized List<Point> getPoints() {
+    public synchronized List<FancyPoint> getPoints() {
         return Collections.unmodifiableList(points);
     }
 
@@ -41,7 +41,7 @@ public class Annotation extends JComponent implements IAnnotation {
     }
 
     @Override
-    public void addPoint(Point p) {
+    public void addPoint(FancyPoint p) {
         points.add(p);
         notifyPropertyChanged();
     }
@@ -68,7 +68,7 @@ public class Annotation extends JComponent implements IAnnotation {
     }
 
     @Override
-    public void removePoint(Point p) {
+    public void removePoint(FancyPoint p) {
         int index = points.indexOf(p);
         if (index != -1) {
             points.remove(index);
@@ -96,9 +96,16 @@ public class Annotation extends JComponent implements IAnnotation {
     public void addTypedTextCharacter(TypedText t, Character c) {
         if (typedTexts.indexOf(t) == -1)
             return;
-        t.text += c;
+        t.addCharacter(c);
         notifyPropertyChanged();
-        System.out.println("KEY ADDED");
+    }
+
+    @Override
+    public void clean() {
+        points.clear();
+        shapes.clear();
+        typedTexts.clear();
+
     }
 
     private void notifyPropertyChanged() {

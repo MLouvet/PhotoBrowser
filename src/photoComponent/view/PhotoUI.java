@@ -1,6 +1,8 @@
 package photoComponent.view;
 
+import photoComponent.model.FancyPoint;
 import photoComponent.model.IAnnotation;
+import photoComponent.model.PenStatus;
 import photoComponent.model.TypedText;
 
 import javax.imageio.ImageIO;
@@ -34,9 +36,11 @@ public class PhotoUI extends AbstractPhotoUI {
     private boolean canType;
     private TypedText currentText;
     private String errorMsg;
+    private PenStatus penStatus;
 
     public PhotoUI(IAnnotation model) {
         this.model = model;
+        penStatus = new PenStatus();
         image = null;
         listeners = new ArrayList<>();
         dimension = new Dimension();
@@ -61,9 +65,8 @@ public class PhotoUI extends AbstractPhotoUI {
             flip();
             e.consume();
         } else if (e.getClickCount() == 1 && !e.isConsumed() && isFlipped) {
-            System.out.println("Click");
             canType = true;
-            currentText = new TypedText("", e.getPoint());
+            currentText = new TypedText("", e.getPoint(), penStatus);
             model.addTypedText(currentText);
         }
     }
@@ -72,7 +75,6 @@ public class PhotoUI extends AbstractPhotoUI {
     public void flip() {
         if (image == null)
             return;
-        int fps = 60;
         float step = 0.01f;
 
         //Reduce current frame
@@ -105,16 +107,16 @@ public class PhotoUI extends AbstractPhotoUI {
             }
 
 
-            //Letting the image draw itself by putting the thread to sleep
-            System.out.println(d.width);
-            System.out.println(d.width * viewablePercent);
+            //Letting the image draw itself by putting the thread to sleep - TODO resolve this
             setDimension((int) (d.width * viewablePercent), d.height);
+//            int fps = 60;
+            //            Timer t = new Timer(60, this.listeners);
+            //            t.start();
             //            try {
             //                Thread.sleep(1000 / fps);
             //            } catch (InterruptedException e) {
             //                e.printStackTrace();
             //            }
-            System.out.println(rotationStatus);
         } while (!d.equals(dimension));
 
     }
@@ -167,11 +169,16 @@ public class PhotoUI extends AbstractPhotoUI {
     }
 
     @Override
+    public void setPenStatus(PenStatus p) {
+        penStatus = p;
+    }
+
+    @Override
     public boolean addCharacter(Character c) {
         if (!canType || c == CHAR_UNDEFINED || currentText == null)
             return false;
 
-        if (shouldAddCharacter(currentText.text, c)) {
+        if (shouldAddCharacter(currentText.getText(), c)) {
             model.addTypedTextCharacter(currentText, c);
             return true;
         } else {
@@ -184,14 +191,14 @@ public class PhotoUI extends AbstractPhotoUI {
      * Checking if a character can be added and not go out of the gui
      *
      * @param text: text which will be displayed for currentText
-     * @param c: character to be added to X
+     * @param c:    character to be added to X
      * @return true if character can be added and displayed
      */
     private boolean shouldAddCharacter(String text, Character c) {
-        int maxWidth = dimension.width - currentText.position.x;
+        int maxWidth = dimension.width - currentText.getPosition().x;
         List<String> lines = new ArrayList<>();
         StringBuilder sb = new StringBuilder(text + c);
-        FontMetrics metrics = image.getGraphics().getFontMetrics(currentText.font);
+        FontMetrics metrics = image.getGraphics().getFontMetrics(currentText.getFont());
 
         for (int i = 0; i < sb.length(); i++) {
             int size = metrics.stringWidth(sb.substring(0, i + 1));
@@ -207,13 +214,20 @@ public class PhotoUI extends AbstractPhotoUI {
             return false;
 
         int height = metrics.getHeight() * (lines.size() - 1); //Drawn from bottom to top
-        return currentText.position.y + height <= dimension.height;
+        return currentText.getPosition().y + height <= dimension.height;
+    }
+
+    @Override
+    void setErrorMessage(String str) {
+        for (PropertyChangeListener listener : listeners) {
+            listener.propertyChange(new PropertyChangeEvent(this, "errorMsg", errorMsg, str));
+        }
+        errorMsg = str;
     }
 
     private void setDimension(int width, int height) {
         Dimension oldDim = new Dimension(dimension);
         dimension.setSize(width, height);
-        System.out.println(dimension);
         if (!dimension.equals(oldDim))
             for (PropertyChangeListener listener : listeners) {
                 listener.propertyChange(new PropertyChangeEvent(this, "dimension", oldDim, dimension));
@@ -253,15 +267,15 @@ public class PhotoUI extends AbstractPhotoUI {
                 g.drawRect(0, 0, dimension.width, dimension.height);
                 g.setColor(Color.WHITE);
                 g.fillRect(0, 0, dimension.width, dimension.height);
-                //TODO : draw annotations here
-                g.setColor(Color.BLACK);
-                for (Point p : model.getPoints()) {
-                    g.fillOval(p.x, p.y, 4, 4);
+                for (FancyPoint p : model.getPoints()) {
+                    g.setColor(p.getColor());
+                    int size = p.getSize();
+                    g.fillOval(p.x, p.y, size, size);
                 }
                 for (TypedText t : model.getTypedTexts()) {
-                    g.setColor(t.color);
-                    g.setFont(t.font);
-                    drawStringWithBreaks(t.text, t.font, g, t.position.x, t.position.y);
+                    g.setColor(t.getColor());
+                    g.setFont(t.getFont());
+                    drawStringWithBreaks(t.getText(), t.getFont(), g, t.getPosition().x, t.getPosition().y);
                 }
             }
         }
@@ -288,27 +302,18 @@ public class PhotoUI extends AbstractPhotoUI {
     @Override
     public void mouseDragged(MouseEvent e) {
         if (canDraw)
-            model.addPoint(e.getPoint());
+            model.addPoint(new FancyPoint(e.getPoint(), penStatus));
     }
 
     @Override
     public void mouseMoved(MouseEvent e) {
         if (canType) {
-            System.out.println("END OF TYPING");
             canType = false;
-            if (currentText.text.isEmpty()) {
+            if (currentText.getText().isEmpty()) {
                 model.removeTypedText(currentText);
             }
             currentText = null;
         }
-    }
-
-    @Override
-    void setErrorMessage(String str) {
-        for (PropertyChangeListener listener : listeners) {
-            listener.propertyChange(new PropertyChangeEvent(this, "errorMsg", errorMsg, str));
-        }
-        errorMsg = str;
     }
     //</editor-fold>
 

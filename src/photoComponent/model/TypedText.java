@@ -3,14 +3,37 @@ package photoComponent.model;
 import java.awt.*;
 
 public class TypedText {
-    public String text;
-    public Font font;
-    public Point position; //From top-left corner of the photo
-    public Color color;
+    private String text;
+    private Font font;
+    private Point position; //From top-left corner of the photo
+    private Color color;
 
-    public TypedText(String text, Point p) {
+    public TypedText(String text, Point p, PenStatus status) {
         this.text = text;
         position = p;
-        font = new Font("Times New Roman", Font.PLAIN, 24);
+        font = status.getFont();
+        color = status.getColor();
+    }
+
+
+
+    public Color getColor() {
+        return color;
+    }
+
+    public Point getPosition() {
+        return position;
+    }
+
+    public Font getFont() {
+        return font;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void addCharacter(Character c){
+        text += c;
     }
 }
