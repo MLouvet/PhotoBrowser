@@ -17,7 +17,6 @@ public interface IPhotoUI {
     void addPropertyChangeListener(PropertyChangeListener l);
     void removePropertyChangeListener(PropertyChangeListener l);
     void loadImage(Path p);
-    Image getImage();
 
     void setPenStatus(PenStatus p);
 

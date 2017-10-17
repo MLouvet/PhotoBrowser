@@ -1,28 +1,25 @@
 package photoComponent.model;
 
+import photoComponent.view.sceneGraph.nodes.PathNode;
+import photoComponent.view.sceneGraph.nodes.ShapeNode;
+import photoComponent.view.sceneGraph.nodes.TextNode;
+
 import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.util.List;
 
 public interface IAnnotation {
 
     /**
      * @return Read-only Lists
      */
-    List<ChangeListener> getListeners();            //Read-only List
-    List<FancyPoint> getPoints();                   //Read-only List
-    List<Shape> getShapes();                        //Read-only List
-    List<TypedText> getTypedTexts();                //Read-only List
 
-    void addTypedText(TypedText t);
-    void addPoint(FancyPoint p);
+    void addTextNode(TextNode t);
+    void addPathNode(PathNode p);
     void addChangeListener(ChangeListener l);
-    void addShape(Shape s);
-    void removeTypedText(TypedText t);
-    void removePoint(FancyPoint p);
-    void removeChangeListener(ChangeListener l);
-    void removeShape(Shape s);
+    void addShapeNode(ShapeNode s);
+    void removeTextNode(TextNode t);
 
-    void addTypedTextCharacter(TypedText t, Character c);
+    void addTextNodeCharacter(TextNode t, Character c);
+    void addPathNodePoint(PathNode node, Point p);
     void clean();
 }

@@ -1,15 +1,17 @@
 package photoComponent.model;
 
+import photoComponent.view.sceneGraph.inputContexts.StrokeContext;
+
 import java.awt.*;
 
 public class PenStatus {
     private Font font;
     private Color color;
-    private FancyPoint.Size size;
+    private StrokeContext.Size size;
 
     public PenStatus() {
         font = new Font("Times New Roman", Font.PLAIN, 24);
-        size = FancyPoint.Size.MEDIUM;
+        size = StrokeContext.Size.MEDIUM;
         color = Color.BLACK;
     }
 
@@ -29,11 +31,11 @@ public class PenStatus {
         this.font = font;
     }
 
-    public FancyPoint.Size getSize() {
+    public StrokeContext.Size getSize() {
         return size;
     }
 
-    public void setSize(FancyPoint.Size size) {
+    public void setSize(StrokeContext.Size size) {
         this.size = size;
     }
 }

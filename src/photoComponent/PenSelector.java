@@ -1,7 +1,7 @@
 package photoComponent;
 
-import photoComponent.model.FancyPoint;
 import photoComponent.model.PenStatus;
+import photoComponent.view.sceneGraph.inputContexts.StrokeContext;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -163,22 +163,22 @@ public class PenSelector extends JPanel implements IPenSelector, ChangeListener 
 
         //region Pen size
         tinySize.addActionListener(e -> {
-            penStatus.setSize(FancyPoint.Size.TINY);
+            penStatus.setSize(StrokeContext.Size.TINY);
             stateChanged(new ChangeEvent(this));
         });
 
         smallSize.addActionListener(e -> {
-            penStatus.setSize(FancyPoint.Size.SMALL);
+            penStatus.setSize(StrokeContext.Size.SMALL);
             stateChanged(new ChangeEvent(this));
         });
 
         mediumSize.addActionListener(e -> {
-            penStatus.setSize(FancyPoint.Size.MEDIUM);
+            penStatus.setSize(StrokeContext.Size.MEDIUM);
             stateChanged(new ChangeEvent(this));
         });
 
         largeSize.addActionListener(e -> {
-            penStatus.setSize(FancyPoint.Size.LARGE);
+            penStatus.setSize(StrokeContext.Size.LARGE);
             stateChanged(new ChangeEvent(this));
         });
         //endregion

@@ -1,49 +1,31 @@
 package photoComponent.model;
 
+import photoComponent.view.sceneGraph.nodes.PathNode;
+import photoComponent.view.sceneGraph.nodes.ShapeNode;
+import photoComponent.view.sceneGraph.nodes.TextNode;
+
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class Annotation extends JComponent implements IAnnotation {
-    private List<FancyPoint> points = new ArrayList<>();
-    private List<Shape> shapes = new ArrayList<>();
-    private List<TypedText> typedTexts = new ArrayList<>();
+    private List<PathNode> paths = new ArrayList<>();
+    private List<ShapeNode> shapes = new ArrayList<>();
+    private List<TextNode> texts = new ArrayList<>();
     private List<ChangeListener> listeners = new ArrayList<>();
 
     @Override
-    public List<ChangeListener> getListeners() {
-        return Collections.unmodifiableList(listeners);
-    }
-
-    @Override
-    public synchronized List<FancyPoint> getPoints() {
-        return Collections.unmodifiableList(points);
-    }
-
-    @Override
-    public List<Shape> getShapes() {
-        return Collections.unmodifiableList(shapes);
-    }
-
-    @Override
-    public List<TypedText> getTypedTexts() {
-        return Collections.unmodifiableList(typedTexts);
-    }
-
-    @Override
-    public void addTypedText(TypedText t) {
-        typedTexts.add(t);
+    public void addTextNode(TextNode t) {
+        texts.add(t);
         notifyPropertyChanged();
     }
 
     @Override
-    public void addPoint(FancyPoint p) {
-        points.add(p);
-        notifyPropertyChanged();
+    public void addPathNode(PathNode p) {
+        paths.add(p);
     }
 
     @Override
@@ -52,59 +34,43 @@ public class Annotation extends JComponent implements IAnnotation {
     }
 
     @Override
-    public void addShape(Shape s) {
+    public void addShapeNode(ShapeNode s) {
         shapes.add(s);
         notifyPropertyChanged();
     }
 
 
     @Override
-    public void removeTypedText(TypedText t) {
-        int index = typedTexts.indexOf(t);
+    public void removeTextNode(TextNode t) {
+        int index = texts.indexOf(t);
         if (index != -1) {
-            typedTexts.remove(index);
+            texts.remove(index);
             notifyPropertyChanged();
         }
     }
 
     @Override
-    public void removePoint(FancyPoint p) {
-        int index = points.indexOf(p);
-        if (index != -1) {
-            points.remove(index);
-            notifyPropertyChanged();
-        }
-    }
-
-    @Override
-    public void removeChangeListener(ChangeListener l) {
-        int index = listeners.indexOf(l);
-        if (index != -1)
-            listeners.remove(index);
-    }
-
-    @Override
-    public void removeShape(Shape s) {
-        int index = shapes.indexOf(s);
-        if (index != -1) {
-            shapes.remove(index);
-            notifyPropertyChanged();
-        }
-    }
-
-    @Override
-    public void addTypedTextCharacter(TypedText t, Character c) {
-        if (typedTexts.indexOf(t) == -1)
+    public void addTextNodeCharacter(TextNode t, Character c) {
+        if (texts.indexOf(t) == -1)
             return;
         t.addCharacter(c);
         notifyPropertyChanged();
     }
 
     @Override
+    public void addPathNodePoint(PathNode node, Point p) {
+        if (paths.indexOf(node) == -1)
+            return;
+        node.addPoint(p);
+        notifyPropertyChanged();
+    }
+
+
+    @Override
     public void clean() {
-        points.clear();
+        paths.clear();
         shapes.clear();
-        typedTexts.clear();
+        texts.clear();
 
     }
 
