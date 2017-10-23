@@ -1,6 +1,5 @@
 package photoComponent.view;
 
-import photoComponent.model.IAnnotation;
 import photoComponent.model.PenStatus;
 import photoComponent.view.sceneGraph.inputContexts.PenContext;
 import photoComponent.view.sceneGraph.inputContexts.StrokeContext;
@@ -10,6 +9,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.awt.geom.*;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -22,7 +22,6 @@ import java.util.List;
 public class PhotoUI extends AbstractPhotoUI {
     private RootNode rootNode;
     private ImageNode imageNode;
-    private IAnnotation model;
     private List<PropertyChangeListener> listeners;
     private Dimension dimension;
     private boolean isFlipped;
@@ -30,18 +29,21 @@ public class PhotoUI extends AbstractPhotoUI {
     private boolean canType;
     private TextNode currentTextNode;
     private PathNode currentPathNode;
+    private ShapeNode currentShapeNode;
     private String errorMsg;
     private PenStatus penStatus;
+    private Point origin = null;
 
-    public PhotoUI(IAnnotation model) {
+    public PhotoUI() {
         rootNode = new RootNode();
         imageNode = null;
-        this.model = model;
         penStatus = new PenStatus();
         listeners = new ArrayList<>();
         dimension = new Dimension();
         isFlipped = canDraw = canType = false;
         currentTextNode = null;
+        currentPathNode = null;
+        currentShapeNode = null;
         errorMsg = "";
     }
 
@@ -58,7 +60,10 @@ public class PhotoUI extends AbstractPhotoUI {
             canType = true;
             currentTextNode = new TextNode(e.getX(), e.getY(), dimension.width, dimension.height, new PenContext(penStatus.getColor(), penStatus.getFont()));
             rootNode.addNode(currentTextNode);
-            model.addTextNode(currentTextNode);
+            for (PropertyChangeListener listener : listeners) {
+                listener.propertyChange(new PropertyChangeEvent(this, "currentTextNode",
+                        null, currentTextNode));
+            }
         }
     }
 
@@ -79,10 +84,6 @@ public class PhotoUI extends AbstractPhotoUI {
         return dimension;
     }
 
-    @Override
-    public void setModel(IAnnotation model) {
-        this.model = model;
-    }
 
     @Override
     public List<PropertyChangeListener> getListeners() {
@@ -144,6 +145,7 @@ public class PhotoUI extends AbstractPhotoUI {
         if (e.getButton() == MouseEvent.BUTTON1) {
             canDraw = false;
             currentPathNode = null;
+            currentShapeNode = null;
         }
     }
 
@@ -173,13 +175,81 @@ public class PhotoUI extends AbstractPhotoUI {
 
     @Override
     public void mouseDragged(MouseEvent e) {
+        boolean wasNull = false;
+        if (e.getX() < 0 || dimension.width < e.getX()  //Out of bounds
+                || e.getY() < 0 || dimension.height < e.getY())
+            return;
         if (canDraw) {
-            if (currentPathNode == null) {
-                currentPathNode = new PathNode(new StrokeContext(penStatus));
-                model.addPathNode(currentPathNode);
-                rootNode.addNode(currentPathNode);
+            switch (penStatus.getShapeKind()) {
+                case CURVE:
+                    if (currentPathNode == null) {
+                        currentPathNode = new PathNode(new StrokeContext(penStatus));
+                        rootNode.addNode(currentPathNode);
+                        for (PropertyChangeListener listener : listeners) {
+                            listener.propertyChange(new PropertyChangeEvent(this, "currentPathNode",
+                                    null, currentPathNode));
+                        }
+                    }
+                    currentPathNode.addPoint(e.getPoint());
+                    for (PropertyChangeListener listener : listeners) {
+                        listener.propertyChange(new PropertyChangeEvent(this, "currentPathNode",
+                                currentPathNode, currentPathNode));
+                    }
+                    break;
+                case ELLIPSE:
+                    if (currentShapeNode == null) {
+                        currentShapeNode = new ShapeNode(new Ellipse2D.Float(e.getX(), e.getY(), 0, 0), new StrokeContext(penStatus));
+                        wasNull = true;
+                    }
+                case RECTANGLE:
+                    if (currentShapeNode == null) {
+                        currentShapeNode = new ShapeNode(new Rectangle2D.Float(e.getX(), e.getY(), 0, 0), new StrokeContext(penStatus));
+                        wasNull = true;
+                    }
+                case ROUND_RECTANGLE:
+                    if (currentShapeNode == null) {
+                        currentShapeNode = new ShapeNode(new RoundRectangle2D.Float(e.getX(), e.getY(), 0, 0, 20, 20), new StrokeContext(penStatus));
+                        wasNull = true;
+                    }
+                    if (wasNull) {  //Creation of the shape
+                        origin = e.getPoint();
+                        rootNode.addNode(currentShapeNode);
+                        for (PropertyChangeListener listener : listeners) {
+                            listener.propertyChange(new PropertyChangeEvent(this, "currentShapeNode",
+                                    null, currentShapeNode));
+                        }
+                    } else { //Updating shape
+                        int x = Math.min(origin.x, e.getX());
+                        int w = Math.abs(origin.x - e.getX());
+                        int y = Math.min(origin.y, e.getY());
+                        int h = Math.abs(origin.y - e.getY());
+
+                        RectangularShape r = (RectangularShape) currentShapeNode.getShape();
+                        r.setFrame(x, y, w, h);
+                        for (PropertyChangeListener listener : listeners) {
+                            listener.propertyChange(new PropertyChangeEvent(this, "currentShapeNode",
+                                    currentShapeNode, currentShapeNode));
+                        }
+                    }
+                    break;
+                case STROKE:
+                    if (currentShapeNode == null) {
+                        currentShapeNode = new ShapeNode(new Line2D.Float(e.getX(), e.getY(), e.getX() + 10, e.getY() + 10), new StrokeContext(penStatus));
+                        rootNode.addNode(currentShapeNode);
+                        for (PropertyChangeListener listener : listeners) {
+                            listener.propertyChange(new PropertyChangeEvent(this, "currentShapeNode",
+                                    null, currentShapeNode));
+                        }
+                    } else { //Moving target point
+                        Line2D.Float l = (Line2D.Float) currentShapeNode.getShape();
+                        l.setLine(l.getP1(), e.getPoint());
+                        for (PropertyChangeListener listener : listeners) {
+                            listener.propertyChange(new PropertyChangeEvent(this, "currentShapeNode",
+                                    currentShapeNode, currentShapeNode));
+                        }
+                    }
+                    break;
             }
-            model.addPathNodePoint(currentPathNode, e.getPoint());
         }
     }
 
@@ -189,7 +259,10 @@ public class PhotoUI extends AbstractPhotoUI {
             canType = false;
             if (currentTextNode.getText().isEmpty()) {
                 rootNode.removeNode(currentTextNode);
-                model.removeTextNode(currentTextNode);
+                for (PropertyChangeListener listener : listeners) {
+                    listener.propertyChange(new PropertyChangeEvent(this, "currentTextNode",
+                            currentTextNode, null));
+                }
             }
             currentTextNode = null;
         }

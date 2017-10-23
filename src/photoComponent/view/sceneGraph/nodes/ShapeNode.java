@@ -2,15 +2,15 @@ package photoComponent.view.sceneGraph.nodes;
 
 import com.sun.istack.internal.NotNull;
 import photoComponent.view.sceneGraph.Bounds;
-import photoComponent.view.sceneGraph.inputContexts.ColorContext;
+import photoComponent.view.sceneGraph.inputContexts.StrokeContext;
 
 import java.awt.*;
 
 public class ShapeNode extends AbstractNode {
     private Shape shape;
 
-    protected ShapeNode(@NotNull Shape s, ColorContext context) {
-        super(new Bounds(s.getBounds()), context);
+    public ShapeNode(@NotNull Shape s, StrokeContext context) {
+        super(new Bounds(), context);
         shape = s;
     }
 
@@ -18,5 +18,9 @@ public class ShapeNode extends AbstractNode {
     protected void paintNode(Graphics g) {
         Graphics2D g2D = (Graphics2D) g;
         g2D.draw(shape);
+    }
+
+    public Shape getShape() {
+        return shape;
     }
 }

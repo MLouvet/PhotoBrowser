@@ -12,6 +12,7 @@ public class RootNode extends AbstractNode {
 
     @Override
     public void paintNode(Graphics g) {
+        Graphics2D graphics2D = (Graphics2D) g;
         //Nothing to do as it displays nothing
     }
 }

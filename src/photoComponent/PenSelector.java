@@ -21,8 +21,10 @@ public class PenSelector extends JPanel implements IPenSelector, ChangeListener 
     private PenStatus penStatus;
     private List<ChangeListener> listeners;
 
-    private ButtonGroup sizeSelector;
+    private ButtonGroup sizeSelector, shapeSelector;
     private JRadioButton tinySize, smallSize, mediumSize, largeSize;
+    private JToggleButton jToggleButtonCurve, jToggleButtonEllipse, jToggleButtonRectangle,
+            jToggleButtonRoundRectangle, jToggleButtonStroke;
 
 
     public PenSelector() {
@@ -107,6 +109,54 @@ public class PenSelector extends JPanel implements IPenSelector, ChangeListener 
         add(sizeContainer);
         //endregion
 
+        //region Part 3 of control
+        shapeSelector = new ButtonGroup();
+        
+        ImageIcon curve = new ImageIcon(this.getClass().getResource("ressources/img/curves.png"));
+        ImageIcon ellipse = new ImageIcon(this.getClass().getResource("ressources/img/ellipse.png"));
+        ImageIcon rectangle = new ImageIcon(this.getClass().getResource("ressources/img/rectangle.png"));
+        ImageIcon roundRectangle = new ImageIcon(this.getClass().getResource("ressources/img/roundrectangle.png"));
+        ImageIcon stroke = new ImageIcon(this.getClass().getResource("ressources/img/stroke.png"));
+
+        curve = new ImageIcon(curve.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH));
+        ellipse = new ImageIcon(ellipse.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH));
+        rectangle = new ImageIcon(rectangle.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH));
+        roundRectangle = new ImageIcon(roundRectangle.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH));
+        stroke = new ImageIcon(stroke.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH));
+        
+        jToggleButtonCurve = new JToggleButton(curve);
+        jToggleButtonEllipse = new JToggleButton(ellipse);
+        jToggleButtonRectangle = new JToggleButton(rectangle);
+        jToggleButtonRoundRectangle = new JToggleButton(roundRectangle);
+        jToggleButtonStroke = new JToggleButton(stroke);
+
+        jToggleButtonCurve.setMaximumSize(new Dimension(24,24));
+        jToggleButtonEllipse.setMaximumSize(new Dimension(24,24));
+        jToggleButtonRectangle.setMaximumSize(new Dimension(24,24));
+        jToggleButtonRoundRectangle.setMaximumSize(new Dimension(24,24));
+        jToggleButtonStroke.setMaximumSize(new Dimension(24,24));
+
+        shapeSelector.add(jToggleButtonCurve);
+        shapeSelector.add(jToggleButtonEllipse);
+        shapeSelector.add(jToggleButtonRectangle);
+        shapeSelector.add(jToggleButtonRoundRectangle);
+        shapeSelector.add(jToggleButtonStroke);
+
+        JPanel shapeContainer = new JPanel();
+        border = BorderFactory.createTitledBorder("Shape");
+        border.setTitleJustification(TitledBorder.LEFT);
+        border.setTitlePosition(TitledBorder.BOTTOM);
+        shapeContainer.setBorder(border);
+        shapeContainer.setLayout(new BoxLayout(shapeContainer, BoxLayout.Y_AXIS));
+        shapeContainer.add(jToggleButtonCurve);
+        shapeContainer.add(jToggleButtonEllipse);
+        shapeContainer.add(jToggleButtonRectangle);
+        shapeContainer.add(jToggleButtonRoundRectangle);
+        shapeContainer.add(jToggleButtonStroke);
+        jToggleButtonCurve.setSelected(true);
+        add(shapeContainer);
+        //endregion
+
         //region Event area
         PenSelector parent = this;  //For events
 
@@ -182,6 +232,33 @@ public class PenSelector extends JPanel implements IPenSelector, ChangeListener 
             stateChanged(new ChangeEvent(this));
         });
         //endregion
+
+        //region Description
+        jToggleButtonCurve.addActionListener(e -> {
+            penStatus.setShapeKind(PenStatus.ShapeKind.CURVE);
+            stateChanged(new ChangeEvent(this));
+        });
+
+        jToggleButtonEllipse.addActionListener(e -> {
+            penStatus.setShapeKind(PenStatus.ShapeKind.ELLIPSE);
+            stateChanged(new ChangeEvent(this));
+        });
+
+        jToggleButtonRectangle.addActionListener(e -> {
+            penStatus.setShapeKind(PenStatus.ShapeKind.RECTANGLE);
+            stateChanged(new ChangeEvent(this));
+        });
+
+        jToggleButtonRoundRectangle.addActionListener(e -> {
+            penStatus.setShapeKind(PenStatus.ShapeKind.ROUND_RECTANGLE);
+            stateChanged(new ChangeEvent(this));
+        });
+
+        jToggleButtonStroke.addActionListener(e -> {
+            penStatus.setShapeKind(PenStatus.ShapeKind.STROKE);
+            stateChanged(new ChangeEvent(this));
+        });
+        //endregion
         //endregion
 
         //region Correcting focus to allow typing
@@ -196,6 +273,11 @@ public class PenSelector extends JPanel implements IPenSelector, ChangeListener 
         mediumSize.setFocusable(false);
         largeSize.setFocusable(false);
         jButtonColorPopup.setFocusable(false);
+        jToggleButtonCurve.setFocusable(false);
+        jToggleButtonEllipse.setFocusable(false);
+        jToggleButtonRectangle.setFocusable(false);
+        jToggleButtonRoundRectangle.setFocusable(false);
+        jToggleButtonStroke.setFocusable(false);
         //endregion
 
     }

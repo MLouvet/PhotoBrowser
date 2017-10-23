@@ -8,11 +8,13 @@ public class PenStatus {
     private Font font;
     private Color color;
     private StrokeContext.Size size;
+    private ShapeKind shapeKind;
 
     public PenStatus() {
         font = new Font("Times New Roman", Font.PLAIN, 24);
         size = StrokeContext.Size.MEDIUM;
         color = Color.BLACK;
+        shapeKind = ShapeKind.CURVE;
     }
 
     public Color getColor() {
@@ -37,5 +39,17 @@ public class PenStatus {
 
     public void setSize(StrokeContext.Size size) {
         this.size = size;
+    }
+
+    public enum ShapeKind {
+        CURVE, ELLIPSE, RECTANGLE, ROUND_RECTANGLE, STROKE
+    }
+
+    public ShapeKind getShapeKind() {
+        return shapeKind;
+    }
+
+    public void setShapeKind(ShapeKind shapeKind) {
+        this.shapeKind = shapeKind;
     }
 }

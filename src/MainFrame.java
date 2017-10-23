@@ -3,15 +3,12 @@ import photoComponent.PhotoComponent;
 import photoComponent.view.PhotoUI;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileSystemView;
 import java.awt.*;
 import java.awt.event.*;
 
 public class MainFrame extends JFrame {
     private ButtonGroup buttonGroup;
-    private JComboBox jComboBox;
     private JLabel jLabelStatusBar;
     private JMenu jMenuFile;
     private JMenu jMenuView;
@@ -36,7 +33,6 @@ public class MainFrame extends JFrame {
         super("PhotoBrowser");
         buttonGroup = new ButtonGroup();
         jLabelStatusBar = new JLabel("JLABEL");
-        jComboBox = new JComboBox();
 
         jMenuFile = new JMenu("File");
         jMenuView = new JMenu("View");
@@ -76,6 +72,8 @@ public class MainFrame extends JFrame {
         buttonGroup.add(jRBMIPhotoViewer);
         buttonGroup.add(jRBMIBrowser);
         buttonGroup.add(jRBMISplitMode);
+
+
 
         jRBMIPhotoViewer.setSelected(true);
 
@@ -154,7 +152,7 @@ public class MainFrame extends JFrame {
             }
         });
 
-        ActionListener actionUnimplementedListerner = e -> {
+        ActionListener actionUnimplementedListener = e -> {
             Object o = e.getSource();
             String msg = "Unexpected event raised";
 
@@ -169,13 +167,13 @@ public class MainFrame extends JFrame {
             jLabelStatusBar.setText(msg);
         };
 
-        jMenuItemDelete.addActionListener(actionUnimplementedListerner);
-        jRBMIBrowser.addActionListener(actionUnimplementedListerner);
-        jRBMIPhotoViewer.addActionListener(actionUnimplementedListerner);
-        jRBMISplitMode.addActionListener(actionUnimplementedListerner);
-        jToggleButton1.addActionListener(actionUnimplementedListerner);
-        jToggleButton2.addActionListener(actionUnimplementedListerner);
-        jToggleButton3.addActionListener(actionUnimplementedListerner);
+        jMenuItemDelete.addActionListener(actionUnimplementedListener);
+        jRBMIBrowser.addActionListener(actionUnimplementedListener);
+        jRBMIPhotoViewer.addActionListener(actionUnimplementedListener);
+        jRBMISplitMode.addActionListener(actionUnimplementedListener);
+        jToggleButton1.addActionListener(actionUnimplementedListener);
+        jToggleButton2.addActionListener(actionUnimplementedListener);
+        jToggleButton3.addActionListener(actionUnimplementedListener);
 
         addKeyListener(new KeyListener() {
             @Override

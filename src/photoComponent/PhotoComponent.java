@@ -5,13 +5,12 @@ import photoComponent.model.IAnnotation;
 import photoComponent.model.PenStatus;
 import photoComponent.view.AbstractPhotoUI;
 import photoComponent.view.PhotoUI;
+import photoComponent.view.sceneGraph.nodes.PathNode;
+import photoComponent.view.sceneGraph.nodes.ShapeNode;
+import photoComponent.view.sceneGraph.nodes.TextNode;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.beans.PropertyChangeListener;
 import java.nio.file.Paths;
 
@@ -35,7 +34,7 @@ public class PhotoComponent extends JComponent {
 
     public PhotoComponent() {
         model = new Annotation();
-        ui = new PhotoUI(model);
+        ui = new PhotoUI();
 
         //        PhotoComponent photoComponent = this;
         model.addChangeListener(e -> {
@@ -43,9 +42,26 @@ public class PhotoComponent extends JComponent {
             repaint();
         });
 
-        ui.addPropertyChangeListener(evt -> {
-            if ("dimension".equals(evt.getPropertyName()))
+        ui.addPropertyChangeListener(e -> {
+            if ("dimension".equals(e.getPropertyName()))
                 setPreferredSize(ui.getDimension());
+            if ("currentTextNode".equals(e.getPropertyName())) {
+                if (e.getOldValue() == null && e.getNewValue() != null) {
+                    model.addTextNode((TextNode) e.getNewValue());
+                } else if (e.getOldValue() != null && e.getNewValue() == null) {
+                    model.removeTextNode((TextNode) e.getOldValue());
+                }
+            }
+            if ("currentPathNode".equals(e.getPropertyName())) {
+                if (e.getOldValue() == null && e.getNewValue() != null) {
+                    model.addPathNode((PathNode) e.getNewValue());
+                } //else if (e.getOldValue() != null && e.getOldValue() == e.getNewValue())     /* Just refresh UI as point was added*/
+            }
+            if ("currentShapeNode".equals(e.getPropertyName())) {
+                if (e.getOldValue() == null && e.getNewValue() != null) {
+                    model.addShapeNode((ShapeNode) e.getNewValue());
+                } //else if (e.getOldValue() != null && e.getOldValue() == e.getNewValue())     /* Just refresh UI as shape was modified*/
+            }
             repaint();
             revalidate();
         });
